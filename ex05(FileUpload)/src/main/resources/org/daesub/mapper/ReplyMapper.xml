@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.daesub.mapper.ReplyMapper">   <!-- 생성 interface와 동일한 이름 -->
+
+	<insert id="insert">
+
+		insert into tb1_reply (rno, bno, reply, replyer)
+		values (seq_reply.nextval, #{bno}, #{reply}, #{replyer})
+
+	</insert>
+
+	<select id="read" resultType="org.daesub.domain.ReplyVO">
+
+		select * from tb1_reply where rno =
+		#{rno}
+
+	</select>
+
+
+	<delete id="delete">
+
+		delete from tb1_reply where rno = #{rno}
+
+	</delete>
+
+	<update id="update">
+
+		update tb1_reply set reply = #{reply},updatedate = sysdate 
+		where rno = #{rno}
+
+	</update>
+
+
+<!-- 	<select id="getListWithPaging"
+		resultType="org.daesub.domain.ReplyVO">
+
+		select rno, bno, reply, replyer, replyDate, updatedate
+		from tb1_reply
+		where bno = #{bno}
+		order by rno asc
+
+	</select -->
+
+	<select id="getListWithPaging" resultType="org.daesub.domain.ReplyVO">
+	
+		  <![CDATA[
+		 select  rno, bno, reply, replyer, replydate, updatedate
+		 from 
+		   (
+		    select /*+INDEX(tb1_reply idx_reply) */ 
+		      rownum rn,  rno, bno, reply, replyer, replyDate, updatedate
+		    from tb1_reply
+		    where bno =  #{bno}
+		    and rno > 0
+		    and rownum <= #{cri.pageNum} * #{cri.amount}
+		   ) where rn > (#{cri.pageNum} -1) * #{cri.amount}
+		]]>
+	
+	</select>
+	
+	
+	<select id="getCountByBno" resultType="int">
+		<![CDATA[
+		select count(rno) from tb1_reply where bno = #{bno}
+		]]>
+	</select>
+
+
+
+</mapper>
